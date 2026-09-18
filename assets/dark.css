@@ -1,0 +1,679 @@
+/* ============================================================================
+   AdminDark —— Typecho 后台夜间模式
+   ----------------------------------------------------------------------------
+   后台原样式表（admin/css/style.css）里全是硬编码颜色、一个 CSS 变量都没有，
+   所以只能逐条覆盖。所有规则都挂在 html[data-admin-dark="dark"] 下面：
+     · 多一层属性选择器 + 一个 html 元素，特异性天然高于原规则
+     · 只在深色档生效，浅色档完全不受影响
+   顶部导航原生就是深色（#292D33 / #202328），配色刻意向它靠拢，整体才统一。
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   调色板 —— 这组变量是「公开接口」
+   ----------------------------------------------------------------------------
+   插件自己的后台 CSS 可以直接引用，写法一律：
+       background: var(--ad-surface, #fff);
+   于是：
+     · AdminDark 停用 → 变量未定义 → 回退成原色，插件零风险
+     · 浅色档       → 变量值 = 后台原生色 → 视觉零变化
+     · 换配色方案   → 只改下面这几组值，所有插件同时跟着变
+   所以插件里不要写死深色，一律走变量（见各插件 admin.css 顶部注释）。
+   ---------------------------------------------------------------------------- */
+
+/* 浅色档：值刻意等于后台原生配色，保证「引用变量后外观不变」 */
+html {
+    --ad-bg: #f6f6f3;
+    --ad-surface: #ffffff;
+    --ad-surface-2: #f0f0ec;
+    --ad-surface-3: #e9e9e6;
+    --ad-line: #d9d9d6;
+    --ad-line-soft: #f0f0ec;
+    --ad-fg: #444444;
+    --ad-fg-dim: #666666;
+    --ad-fg-faint: #999999;
+    --ad-accent: #467b96;
+    --ad-accent-hover: #499bc3;
+    --ad-accent-press: #3c6a81;
+    --ad-ok: #3a8a4d;
+    --ad-warn: #a5731a;
+    --ad-danger: #b94a48;
+    --ad-ok-bg: #eaf6ec;
+    --ad-ok-line: #e1f3d8;
+    --ad-warn-bg: #fdf3e7;
+    --ad-warn-line: #f5e0c0;
+    --ad-danger-bg: #fef0f0;
+    --ad-danger-line: #fde2e2;
+    --ad-fill: rgba(128, 128, 128, .14);
+    --ad-on-accent: #ffffff;
+    --ad-hi: rgba(70, 123, 150, .12);
+    --ad-hi-warm: rgba(224, 169, 74, .18);
+    --ad-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+    --ad-radius: 2px;
+}
+
+/* ============================================================================
+   深色档 · 五套配色
+   默认 graphite 直接挂在 data-admin-dark 上；其余靠 data-admin-scheme 覆盖。
+   ============================================================================ */
+
+/* ---- graphite 石墨（默认） ---- */
+html[data-admin-dark="dark"] {
+    --ad-bg: #1b1e23;
+    --ad-surface: #242830;
+    --ad-surface-2: #2b3038;
+    --ad-surface-3: #333942;
+    --ad-line: #373d46;
+    --ad-line-soft: #2d323a;
+    --ad-fg: #d7dbe2;
+    --ad-fg-dim: #98a0ab;
+    --ad-fg-faint: #717986;
+    --ad-accent: #5d9cbf;
+    --ad-accent-hover: #79b1d1;
+    --ad-accent-press: #4d87a8;
+    --ad-danger: #d9736f;
+    --ad-warn: #e0a94a;
+    --ad-ok: #7cbf8b;
+    --ad-ok-bg: rgba(124, 191, 139, .14);
+    --ad-ok-line: rgba(124, 191, 139, .35);
+    --ad-warn-bg: rgba(224, 169, 74, .14);
+    --ad-warn-line: rgba(224, 169, 74, .35);
+    --ad-danger-bg: rgba(217, 115, 111, .14);
+    --ad-danger-line: rgba(217, 115, 111, .35);
+    --ad-fill: rgba(255, 255, 255, .07);
+    --ad-on-accent: #10161a;
+    --ad-hi: rgba(93, 156, 191, .14);
+    --ad-hi-warm: rgba(224, 169, 74, .14);
+    --ad-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+}
+
+/* ---- midnight 午夜蓝 ---- */
+html[data-admin-dark="dark"][data-admin-scheme="midnight"] {
+    --ad-bg: #12161d;
+    --ad-surface: #1a212b;
+    --ad-surface-2: #222b37;
+    --ad-surface-3: #2a3542;
+    --ad-line: #303b49;
+    --ad-line-soft: #232c37;
+    --ad-fg: #d5dce6;
+    --ad-fg-dim: #93a0b0;
+    --ad-fg-faint: #6b7788;
+    --ad-accent: #4f9bd8;
+    --ad-accent-hover: #6fb0e4;
+    --ad-accent-press: #3f83ba;
+    --ad-hi: rgba(79, 155, 216, .16);
+}
+
+/* ---- plum 深紫 ---- */
+html[data-admin-dark="dark"][data-admin-scheme="plum"] {
+    --ad-bg: #1a1520;
+    --ad-surface: #241d2c;
+    --ad-surface-2: #2d2537;
+    --ad-surface-3: #372d43;
+    --ad-line: #3d3348;
+    --ad-line-soft: #2b2334;
+    --ad-fg: #ddd5e6;
+    --ad-fg-dim: #a294b0;
+    --ad-fg-faint: #776b85;
+    --ad-accent: #a37bd8;
+    --ad-accent-hover: #b795e4;
+    --ad-accent-press: #8e66c2;
+    --ad-hi: rgba(163, 123, 216, .16);
+}
+
+/* ---- forest 松林 ---- */
+html[data-admin-dark="dark"][data-admin-scheme="forest"] {
+    --ad-bg: #131b17;
+    --ad-surface: #1c2620;
+    --ad-surface-2: #243029;
+    --ad-surface-3: #2c3a32;
+    --ad-line: #32423a;
+    --ad-line-soft: #232d27;
+    --ad-fg: #d3ded8;
+    --ad-fg-dim: #93a79c;
+    --ad-fg-faint: #6b7d73;
+    --ad-accent: #5fb98c;
+    --ad-accent-hover: #7bcba1;
+    --ad-accent-press: #4d9f76;
+    --ad-hi: rgba(95, 185, 140, .16);
+}
+
+/* ---- ember 暖褐 ---- */
+html[data-admin-dark="dark"][data-admin-scheme="ember"] {
+    --ad-bg: #201a15;
+    --ad-surface: #2a231c;
+    --ad-surface-2: #332b23;
+    --ad-surface-3: #3d342a;
+    --ad-line: #453a2e;
+    --ad-line-soft: #2f2820;
+    --ad-fg: #e0d8ce;
+    --ad-fg-dim: #ab9e8e;
+    --ad-fg-faint: #82756a;
+    --ad-accent: #d4915c;
+    --ad-accent-hover: #e2a577;
+    --ad-accent-press: #bd7c4a;
+    --ad-hi: rgba(212, 145, 92, .16);
+}
+
+/* ---------- 骨架 ---------- */
+
+html[data-admin-dark="dark"] body {
+    background: var(--ad-bg);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] a { color: var(--ad-accent); }
+html[data-admin-dark="dark"] a:hover { color: var(--ad-accent-hover); }
+
+html[data-admin-dark="dark"] hr,
+html[data-admin-dark="dark"] #start-link { border-color: var(--ad-line-soft); }
+
+html[data-admin-dark="dark"] ::selection { background: var(--ad-hi); }
+
+/* 滚动条 */
+html[data-admin-dark="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-admin-dark="dark"] ::-webkit-scrollbar-track { background: var(--ad-bg); }
+html[data-admin-dark="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--ad-surface-3);
+    border-radius: 5px;
+    border: 2px solid var(--ad-bg);
+}
+html[data-admin-dark="dark"] ::-webkit-scrollbar-thumb:hover { background: #3f4650; }
+
+/* ---------- 顶部导航：原生就是深色，只做微调让它和页面一个体系 ---------- */
+
+html[data-admin-dark="dark"] .typecho-head-nav,
+html[data-admin-dark="dark"] .typecho-head-nav menu,
+html[data-admin-dark="dark"] .typecho-head-nav .menu-bar {
+    background: #23272e;
+}
+
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li menu,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li.operate a {
+    background: #1b1e23;
+}
+
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li > a:hover,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li > a:focus,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li:hover > a,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li:not(.operate).focus > a,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li.operate a:hover {
+    background: #14171b;
+}
+
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li menu > li a:hover,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li menu > li a:focus {
+    background: #23272e;
+}
+
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li:first-child,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li > a,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li.operate a:first-child,
+html[data-admin-dark="dark"] .typecho-head-nav .menu-bar[open] summary,
+html[data-admin-dark="dark"] .typecho-head-nav nav > menu > li menu {
+    border-color: #333941;
+}
+
+/* ---------- 标题 / 仪表盘 ---------- */
+
+html[data-admin-dark="dark"] .typecho-page-title a {
+    background: var(--ad-surface-2);
+    color: var(--ad-fg-dim);
+}
+
+html[data-admin-dark="dark"] .welcome-board { color: var(--ad-fg-dim); }
+html[data-admin-dark="dark"] .welcome-board em { color: var(--ad-fg); }
+html[data-admin-dark="dark"] .latest-link span { color: var(--ad-fg-faint); border-color: var(--ad-line-soft); }
+html[data-admin-dark="dark"] .typecho-foot .resource a { color: var(--ad-fg-faint); }
+
+/* ---------- 表单 ---------- */
+
+html[data-admin-dark="dark"] input[type=text],
+html[data-admin-dark="dark"] input[type=url],
+html[data-admin-dark="dark"] input[type=password],
+html[data-admin-dark="dark"] input[type=email],
+html[data-admin-dark="dark"] input[type=number],
+html[data-admin-dark="dark"] input[type=search],
+html[data-admin-dark="dark"] textarea {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] input[type=text]:disabled,
+html[data-admin-dark="dark"] input[type=text]:read-only,
+html[data-admin-dark="dark"] input[type=url]:disabled,
+html[data-admin-dark="dark"] input[type=url]:read-only,
+html[data-admin-dark="dark"] input[type=password]:disabled,
+html[data-admin-dark="dark"] input[type=password]:read-only,
+html[data-admin-dark="dark"] input[type=email]:disabled,
+html[data-admin-dark="dark"] input[type=email]:read-only,
+html[data-admin-dark="dark"] input[type=number]:disabled,
+html[data-admin-dark="dark"] input[type=number]:read-only,
+html[data-admin-dark="dark"] textarea:disabled,
+html[data-admin-dark="dark"] textarea:read-only {
+    background: #20242a;
+    color: var(--ad-fg-dim);
+}
+
+html[data-admin-dark="dark"] input:focus,
+html[data-admin-dark="dark"] textarea:focus,
+html[data-admin-dark="dark"] select:focus {
+    border-color: var(--ad-accent);
+    outline: none;
+}
+
+html[data-admin-dark="dark"] input::placeholder,
+html[data-admin-dark="dark"] textarea::placeholder { color: var(--ad-fg-faint); }
+
+html[data-admin-dark="dark"] select {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] option { background: var(--ad-surface); color: var(--ad-fg); }
+
+html[data-admin-dark="dark"] .typecho-option .description,
+html[data-admin-dark="dark"] .typecho-post-area .description,
+html[data-admin-dark="dark"] .typecho-post-area .url-slug,
+html[data-admin-dark="dark"] .typecho-post-area .edit-draft-notice,
+html[data-admin-dark="dark"] .typecho-post-area .submit #auto-save-message { color: var(--ad-fg-faint); }
+
+/* ---------- 标签输入框（写作页「标签」那一栏） ----------
+   这套样式来自内核的 tokenInput（admin/css/style.css + tokeninput.js），
+   原样式全是硬编码浅色，深色档下必须单独覆盖，否则会白得刺眼。 */
+
+html[data-admin-dark="dark"] ul.token-input-list {
+    background-color: var(--ad-surface);
+    border-color: var(--ad-line);
+}
+
+html[data-admin-dark="dark"] li.token-input-token {
+    background-color: var(--ad-surface-3);
+    color: var(--ad-fg-dim);
+}
+
+html[data-admin-dark="dark"] li.token-input-selected-token {
+    background-color: var(--ad-accent);
+    color: #10161a;
+}
+
+html[data-admin-dark="dark"] li.token-input-token span { color: var(--ad-fg-faint); }
+html[data-admin-dark="dark"] li.token-input-token span:hover { color: var(--ad-danger); }
+
+html[data-admin-dark="dark"] div.token-input-dropdown {
+    background-color: var(--ad-surface);
+    border-color: var(--ad-line);
+    box-shadow: var(--ad-shadow);
+}
+
+html[data-admin-dark="dark"] div.token-input-dropdown p { color: var(--ad-fg-dim); }
+
+html[data-admin-dark="dark"] div.token-input-dropdown ul li,
+html[data-admin-dark="dark"] div.token-input-dropdown ul li.token-input-dropdown-item {
+    background-color: var(--ad-surface);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] div.token-input-dropdown ul li.token-input-selected-dropdown-item {
+    background-color: var(--ad-accent);
+    color: #10161a;
+}
+
+/* ---------- 按钮 ---------- */
+
+html[data-admin-dark="dark"] .btn,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-current,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-close {
+    background-color: var(--ad-surface-2);
+    color: var(--ad-fg-dim);
+}
+
+html[data-admin-dark="dark"] .btn:hover,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-current:hover,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-close:hover {
+    background-color: var(--ad-surface-3);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] .btn:active,
+html[data-admin-dark="dark"] .btn.active,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-current:active,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-close:active {
+    background-color: #3d444e;
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] .btn:disabled {
+    background-color: #23262c;
+    color: var(--ad-fg-faint);
+}
+
+html[data-admin-dark="dark"] .primary {
+    background-color: var(--ad-accent);
+    color: #10161a;
+    font-weight: 600;
+}
+
+html[data-admin-dark="dark"] .primary:hover { background-color: var(--ad-accent-hover); }
+html[data-admin-dark="dark"] .primary:active,
+html[data-admin-dark="dark"] .primary.active { background-color: var(--ad-accent-press); }
+html[data-admin-dark="dark"] .primary:disabled { background-color: #3f5f70; color: #8fa3ac; }
+
+html[data-admin-dark="dark"] .btn-warn { background-color: #b04f4c; color: #fff; }
+html[data-admin-dark="dark"] .btn-warn:hover { background-color: #c25a57; }
+html[data-admin-dark="dark"] .btn-warn:active,
+html[data-admin-dark="dark"] .btn-warn.active { background-color: #9a4340; }
+
+html[data-admin-dark="dark"] .btn-link { background-color: transparent; }
+
+/* 列表里的行内操作链接 */
+html[data-admin-dark="dark"] .operate-delete,
+html[data-admin-dark="dark"] .operate-button-delete { color: var(--ad-danger); }
+html[data-admin-dark="dark"] .operate-edit { color: #6fbf86; }
+html[data-admin-dark="dark"] .operate-reply { color: #b6bd7a; }
+
+/* ---------- 下拉菜单 ---------- */
+
+html[data-admin-dark="dark"] .dropdown-menu {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+}
+
+html[data-admin-dark="dark"] .dropdown-menu a { color: var(--ad-fg-dim); }
+html[data-admin-dark="dark"] .dropdown-menu a:hover {
+    background: var(--ad-surface-2);
+    color: var(--ad-fg);
+}
+
+/* ---------- 提示条 ---------- */
+
+html[data-admin-dark="dark"] .success { background: rgba(124, 191, 139, .16); color: #a9dcb5; }
+html[data-admin-dark="dark"] .success a { color: #a9dcb5; }
+html[data-admin-dark="dark"] .error { background: rgba(217, 115, 111, .16); color: #f0b0ad; }
+html[data-admin-dark="dark"] .error a { color: #f0b0ad; }
+html[data-admin-dark="dark"] .notice { background: rgba(224, 169, 74, .16); color: #eccb8e; }
+html[data-admin-dark="dark"] .notice a { color: #eccb8e; }
+html[data-admin-dark="dark"] .warning { color: var(--ad-danger); }
+
+html[data-admin-dark="dark"] .balloon { background: var(--ad-surface-3); color: var(--ad-fg-dim); }
+html[data-admin-dark="dark"] a.balloon-button { background: #2c3a44; color: var(--ad-accent); }
+
+/* ---------- 列表表格 ---------- */
+
+html[data-admin-dark="dark"] .typecho-list-table {
+    background: var(--ad-surface);
+    border-color: var(--ad-surface);
+}
+
+html[data-admin-dark="dark"] .typecho-list-table th { border-bottom-color: var(--ad-line); }
+html[data-admin-dark="dark"] .typecho-list-table td { border-top-color: var(--ad-line-soft); }
+html[data-admin-dark="dark"] .typecho-list-table tbody tr:hover { background-color: var(--ad-surface-2); }
+html[data-admin-dark="dark"] .typecho-list-table tbody tr:has(input[type="checkbox"]:checked) {
+    background-color: var(--ad-hi);
+}
+html[data-admin-dark="dark"] .typecho-list-table.deactivate,
+html[data-admin-dark="dark"] .typecho-list-table td.none,
+html[data-admin-dark="dark"] .typecho-list-table .status,
+html[data-admin-dark="dark"] .typecho-list-table-title { color: var(--ad-fg-faint); }
+
+html[data-admin-dark="dark"] .typecho-list-notable li:hover { background-color: var(--ad-surface-2); }
+html[data-admin-dark="dark"] .typecho-list-notable li:has(input[type="checkbox"]:checked) {
+    background-color: var(--ad-hi-warm);
+}
+
+html[data-admin-dark="dark"] .tag-list { background-color: var(--ad-surface); }
+html[data-admin-dark="dark"] .tag-list .none { color: var(--ad-fg-faint); }
+
+/* 批量勾选时的整行高亮（内核用的是 #FFF9E8） */
+html[data-admin-dark="dark"] .typecho-theme-list tbody tr.current td { background-color: var(--ad-hi-warm); }
+
+/* ---------- 分页 ---------- */
+
+html[data-admin-dark="dark"] .typecho-pager li a:hover,
+html[data-admin-dark="dark"] .typecho-pager li.current a {
+    background: var(--ad-surface-2);
+    color: var(--ad-fg);
+}
+
+/* ---------- 插件 / 主题设置页 ---------- */
+
+html[data-admin-dark="dark"] .typecho-option label.required:after { color: var(--ad-danger); }
+html[data-admin-dark="dark"] .typecho-option-tabs li a {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+    color: var(--ad-fg-dim);
+}
+html[data-admin-dark="dark"] .typecho-option-tabs li a:hover,
+html[data-admin-dark="dark"] .typecho-option-tabs li.current a,
+html[data-admin-dark="dark"] .typecho-option-tabs li.active a {
+    background-color: var(--ad-surface-3);
+    color: var(--ad-fg);
+}
+
+html[data-admin-dark="dark"] .typecho-edit-theme .current { background-color: var(--ad-surface-3); }
+html[data-admin-dark="dark"] .typecho-edit-theme .current a { color: var(--ad-fg); }
+html[data-admin-dark="dark"] .typecho-theme-list cite { color: var(--ad-fg-faint); }
+html[data-admin-dark="dark"] .typecho-attachment-photo { border-color: var(--ad-line); }
+
+/* ---------- 写文章页 ---------- */
+
+html[data-admin-dark="dark"] .typecho-post-area #custom-field,
+html[data-admin-dark="dark"] .typecho-post-area #edit-secondary .category-option ul {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+}
+
+html[data-admin-dark="dark"] .typecho-post-area #custom-field .fields .field { border-bottom-color: var(--ad-line-soft); }
+html[data-admin-dark="dark"] .typecho-post-area #custom-field summary::marker { color: var(--ad-fg-faint); }
+html[data-admin-dark="dark"] .typecho-post-area #custom-field .typecho-label a { color: var(--ad-fg); }
+
+html[data-admin-dark="dark"] .typecho-post-area #slug {
+    background: var(--ad-hi-warm);
+    color: var(--ad-fg-dim);
+}
+
+/* ---------- 编辑器（Markdown 工具条 / 预览） ---------- */
+
+html[data-admin-dark="dark"] #wmd-button-bar .wmd-button-row li:hover { background-color: var(--ad-surface-3); }
+html[data-admin-dark="dark"] #wmd-button-bar .wmd-button-row li.wmd-spacer { background: var(--ad-line); }
+html[data-admin-dark="dark"] #wmd-button-bar .wmd-edittab a.active {
+    background: var(--ad-surface-3);
+    color: var(--ad-fg-dim);
+}
+html[data-admin-dark="dark"] .fullscreen #wmd-button-bar,
+html[data-admin-dark="dark"] .fullscreen #text,
+html[data-admin-dark="dark"] .fullscreen #wmd-preview,
+html[data-admin-dark="dark"] .fullscreen .submit { background: var(--ad-bg); }
+html[data-admin-dark="dark"] .fullscreen #wmd-button-bar { border-bottom-color: var(--ad-line-soft); }
+html[data-admin-dark="dark"] .wmd-prompt-dialog { background: var(--ad-surface); color: var(--ad-fg); }
+html[data-admin-dark="dark"] #wmd-editarea .resize { border-color: var(--ad-line); }
+html[data-admin-dark="dark"] #wmd-editarea .resize i { background-color: var(--ad-line); }
+html[data-admin-dark="dark"] #wmd-preview table th,
+html[data-admin-dark="dark"] #wmd-preview table td { border-color: var(--ad-line); }
+html[data-admin-dark="dark"] #wmd-preview table th { background: var(--ad-surface-2); }
+html[data-admin-dark="dark"] #wmd-preview .summary:after { background: var(--ad-hi-warm); color: #e0c07a; }
+
+/* 工具条图标是深色 PNG 精灵图，深色背景下要反相才看得见 */
+html[data-admin-dark="dark"] #wmd-button-bar .editor-sprite,
+html[data-admin-dark="dark"] #wmd-button-bar .wmd-button-row li span,
+html[data-admin-dark="dark"] .editor-sprite { filter: invert(1) brightness(1.15); }
+
+/* ---------- 上传面板 ---------- */
+
+html[data-admin-dark="dark"] #upload-panel {
+    background-color: var(--ad-surface);
+    border-color: var(--ad-line);
+    color: var(--ad-fg-dim);
+}
+html[data-admin-dark="dark"] #upload-panel.drag { background-color: var(--ad-hi-warm); }
+
+/* ---------- 日期选择器 ---------- */
+
+html[data-admin-dark="dark"] #ui-datepicker-div {
+    background: var(--ad-surface);
+    border-color: var(--ad-line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+}
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-header,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-timepicker-div,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-buttonpane { border-color: var(--ad-line-soft); }
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-calendar a { background-color: var(--ad-surface-2); color: var(--ad-fg-dim); }
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-calendar a:hover,
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-today a { background-color: var(--ad-surface-3); color: var(--ad-fg); }
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-datepicker-current-day a {
+    background-color: var(--ad-accent) !important;
+    color: #10161a !important;
+}
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-slider {
+    background-color: var(--ad-surface-2);
+    border-color: var(--ad-line);
+}
+html[data-admin-dark="dark"] #ui-datepicker-div .ui-slider .ui-slider-handle { background-color: var(--ad-accent); }
+
+/* ---------- 登录页 ---------- */
+
+html[data-admin-dark="dark"] .typecho-login-wrap .typecho-login .more-link { color: var(--ad-fg-faint); }
+
+/* ---------- 杂项 ---------- */
+
+html[data-admin-dark="dark"] .loading { filter: invert(.92); }
+html[data-admin-dark="dark"] .profile-avatar { background: var(--ad-surface); }
+html[data-admin-dark="dark"] .edit-media button { color: var(--ad-fg-dim); }
+html[data-admin-dark="dark"] .comment-reply-content:after {
+    border-color: var(--ad-surface-2) var(--ad-surface-2) transparent transparent;
+}
+
+/* ============================================================================
+   切换按钮（由 dark.js 插入）
+   ============================================================================ */
+
+.ad-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 36px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: #bbb;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 36px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .2s, background-color .2s;
+}
+
+.ad-switch:hover { color: #fff; background: #14171b; }
+.ad-switch:focus-visible { outline: 2px solid var(--ad-accent, #5d9cbf); outline-offset: -2px; }
+
+.ad-switch .ad-switch-ico { font-size: 14px; line-height: 1; }
+
+/* 顶部导航里：跟着菜单项一起排 */
+.ad-switch-li { display: flex; align-items: center; border-left: 1px solid #333941; }
+
+/* 右下角悬浮：跟后台其它浮动元素错开，别压住滚动条 */
+.ad-switch-float {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 900;
+    border: 1px solid var(--ad-line, #373d46);
+    border-radius: 18px;
+    background: var(--ad-surface, #242830);
+    color: var(--ad-fg-dim, #98a0ab);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+}
+
+.ad-switch-float:hover {
+    background: var(--ad-surface-2, #2b3038);
+    color: var(--ad-fg, #d7dbe2);
+}
+
+/* 浅色档下的悬浮按钮也得看得见（此时深色变量还没生效） */
+html:not([data-admin-dark="dark"]) .ad-switch-float {
+    border-color: #d9d9d6;
+    background: #fff;
+    color: #666;
+}
+
+html:not([data-admin-dark="dark"]) .ad-switch-float:hover {
+    background: #f6f6f3;
+    color: #444;
+}
+
+/* ============================================================================
+   配色切换菜单
+   ============================================================================ */
+
+.ad-scheme { position: relative; display: flex; align-items: center; }
+
+.ad-scheme-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 300;
+    display: none;
+    min-width: 150px;
+    margin: 0;
+    padding: 5px;
+    list-style: none;
+    background: var(--ad-surface, #fff);
+    border: 1px solid var(--ad-line, #d9d9d6);
+    border-radius: 4px;
+    box-shadow: var(--ad-shadow, 0 6px 20px rgba(0, 0, 0, .14));
+}
+
+.ad-scheme.is-open .ad-scheme-menu { display: block; }
+
+.ad-scheme-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 9px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--ad-fg-dim, #666);
+    font-size: 13px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ad-scheme-item:hover { background: var(--ad-surface-2, #f0f0ec); color: var(--ad-fg, #444); }
+
+.ad-scheme-item.is-current { color: var(--ad-accent, #467b96); font-weight: 600; }
+
+.ad-scheme-item.is-current::after { content: '✓'; margin-left: auto; padding-left: 6px; }
+
+/* 小色卡：外圈是页面底色、内圈是强调色 */
+.ad-swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.ad-swatch i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+/* 插件设置页里那排配色单选项：把色卡和文字排整齐 */
+.ad-scheme-radio li { margin-bottom: 6px; }
+.ad-scheme-radio label { display: inline-flex; align-items: center; gap: 6px; }
+.ad-scheme-radio .ad-swatch { vertical-align: middle; }
+
