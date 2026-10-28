@@ -9,7 +9,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
  *
  * @package AdminDark
  * @author  zizdog
- * @version 0.0.1
+ * @version 0.0.2
  * @link    https://zizdog.com
  */
 
@@ -144,9 +144,10 @@ class AdminDark_Plugin implements Typecho_Plugin_Interface
         $form->addInput(new $text(
             'darkAccent',
             null,
-            '#5d9cbf',
+            '',
             _t('深色模式强调色'),
-            _t('链接、主按钮、选中态的强调色。留空则用内置默认值。')
+            _t('链接、主按钮、选中态的强调色，填 #rrggbb。留空（默认）表示跟随所选配色方案；'
+                . '填了则五套配色统一用这个颜色。')
         ));
 
         $form->addInput(new $textarea(
@@ -216,10 +217,18 @@ class AdminDark_Plugin implements Typecho_Plugin_Interface
             $out .= '<style id="admin-dark-custom">' . $custom . '</style>' . "\n";
         }
 
-        $accent = trim((string) self::opt('darkAccent', ''));
+        $accent = self::customAccent();
 
-        if ('' !== $accent && preg_match('/^#[0-9a-fA-F]{3,8}$/', $accent)) {
-            $out .= '<style>html[' . self::ATTR . '="dark"]{--ad-accent:' . $accent . ';}</style>' . "\n";
+        if (null !== $accent) {
+            // 【特异性】配色块是 html[data-admin-dark="dark"][data-admin-scheme="x"]（0,2,1），
+            // 这里必须用同样深度的选择器，且样式表在 dark.css 之后，才能压过它；
+            // 光写 html[data-admin-dark="dark"]（0,1,1）只对默认的石墨配色有效。
+            $out .= '<style>html[' . self::ATTR . '="dark"][data-admin-scheme]{'
+                . '--ad-accent:' . $accent . ';'
+                . '--ad-accent-hover:' . self::mixHex($accent, '#ffffff', .18) . ';'
+                . '--ad-accent-press:' . self::mixHex($accent, '#000000', .12) . ';'
+                . '--ad-hi:' . self::rgba($accent, .16) . ';'
+                . '}</style>' . "\n";
         }
 
         return $header . "\n" . $out;
@@ -357,6 +366,114 @@ class AdminDark_Plugin implements Typecho_Plugin_Interface
         $default = strtolower(trim((string) self::opt('scheme', self::SCHEME_DEFAULT)));
 
         return isset(self::SCHEMES[$default]) ? $default : self::SCHEME_DEFAULT;
+    }
+
+    /**
+     * 用户自定义的强调色（没填 / 填的是旧版默认值 → null，表示跟随配色方案）
+     *
+     * 旧版的默认值正好等于石墨配色的强调色。老配置里存着这个值，
+     * 若当成覆盖，其它四套配色就会被一律刷成蓝色，所以视作「不覆盖」。
+     *
+     * @return string|null #rrggbb 或 #rrggbbaa
+     */
+    protected static function customAccent()
+    {
+        $raw = strtolower(trim((string) self::opt('darkAccent', '')));
+
+        if ('' === $raw || $raw === strtolower(self::SCHEMES[self::SCHEME_DEFAULT]['accent'])) {
+            return null;
+        }
+
+        return self::normalizeHex($raw);
+    }
+
+    /**
+     * 把 #abc / #aabbcc / #aabbccdd 统一成可输出的小写十六进制
+     *
+     * @param string $hex
+     * @return string|null
+     */
+    protected static function normalizeHex($hex)
+    {
+        if (!preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/', $hex, $m)) {
+            return null;
+        }
+
+        $body = $m[1];
+
+        if (3 === strlen($body)) {
+            $body = $body[0] . $body[0] . $body[1] . $body[1] . $body[2] . $body[2];
+        }
+
+        return '#' . $body;
+    }
+
+    /**
+     * 十六进制 → array(r, g, b)，非法返回 null（支持 3/6/8 位，8 位的 alpha 忽略）
+     *
+     * @param string $hex
+     * @return array|null
+     */
+    protected static function hexToRgb($hex)
+    {
+        $hex = self::normalizeHex(strtolower(trim((string) $hex)));
+
+        if (null === $hex) {
+            return null;
+        }
+
+        $body = ltrim($hex, '#');
+
+        return array(
+            hexdec(substr($body, 0, 2)),
+            hexdec(substr($body, 2, 2)),
+            hexdec(substr($body, 4, 2)),
+        );
+    }
+
+    /**
+     * 按比例把颜色往 $toward 混，用来从强调色推导 hover / press
+     *
+     * @param string $hex    源色
+     * @param string $toward #ffffff 或 #000000
+     * @param float  $ratio  0 ~ 1
+     * @return string #rrggbb
+     */
+    protected static function mixHex($hex, $toward, $ratio)
+    {
+        $from = self::hexToRgb($hex);
+        $to = self::hexToRgb($toward);
+
+        if (null === $from || null === $to) {
+            return $hex;
+        }
+
+        $out = '#';
+
+        for ($i = 0; $i < 3; $i++) {
+            $value = (int) round($from[$i] + ($to[$i] - $from[$i]) * $ratio);
+            $out .= str_pad(dechex(max(0, min(255, $value))), 2, '0', STR_PAD_LEFT);
+        }
+
+        return $out;
+    }
+
+    /**
+     * 十六进制 → rgba(...)，用于半透明的强调色底（--ad-hi）
+     *
+     * @param string $hex
+     * @param float  $alpha
+     * @return string
+     */
+    protected static function rgba($hex, $alpha)
+    {
+        $rgb = self::hexToRgb($hex);
+
+        if (null === $rgb) {
+            return 'rgba(0, 0, 0, ' . $alpha . ')';
+        }
+
+        return 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', ' . $alpha . ')';
     }
 
     /**

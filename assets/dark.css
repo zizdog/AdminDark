@@ -537,6 +537,16 @@ html[data-admin-dark="dark"] #ui-datepicker-div .ui-slider .ui-slider-handle { b
 
 html[data-admin-dark="dark"] .typecho-login-wrap .typecho-login .more-link { color: var(--ad-fg-faint); }
 
+/* 字标是黑色 SVG + opacity .15，深色底上等于看不见；反相后再压到合适的淡度 */
+html[data-admin-dark="dark"] .i-logo,
+html[data-admin-dark="dark"] .i-logo-s {
+    filter: invert(1);
+    opacity: .4;
+}
+
+html[data-admin-dark="dark"] .i-logo:hover,
+html[data-admin-dark="dark"] .i-logo-s:hover { opacity: .55; }
+
 /* ---------- 杂项 ---------- */
 
 html[data-admin-dark="dark"] .loading { filter: invert(.92); }
@@ -575,12 +585,20 @@ html[data-admin-dark="dark"] .comment-reply-content:after {
 /* 顶部导航里：跟着菜单项一起排 */
 .ad-switch-li { display: flex; align-items: center; border-left: 1px solid #333941; }
 
-/* 右下角悬浮：跟后台其它浮动元素错开，别压住滚动条 */
-.ad-switch-float {
+/* 右下角悬浮：跟后台其它浮动元素错开，别压住滚动条。
+   .ad-float 既挂在外层容器（配色 div）上，也挂在单独按钮（模式切换）上；
+   底部间距由 dark.js 按顺序算好，避免两者叠在一起。 */
+.ad-float,
+.ad-scheme.ad-float {
     position: fixed;
     right: 22px;
-    bottom: 22px;
     z-index: 900;
+    display: flex;
+    align-items: center;
+}
+
+.ad-float.ad-switch,
+.ad-float .ad-switch {
     border: 1px solid var(--ad-line, #373d46);
     border-radius: 18px;
     background: var(--ad-surface, #242830);
@@ -588,19 +606,28 @@ html[data-admin-dark="dark"] .comment-reply-content:after {
     box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
 }
 
-.ad-switch-float:hover {
+.ad-float.ad-switch:hover,
+.ad-float .ad-switch:hover {
     background: var(--ad-surface-2, #2b3038);
     color: var(--ad-fg, #d7dbe2);
 }
 
+/* 悬浮时菜单往上弹，别掉出视口 */
+.ad-float .ad-scheme-menu {
+    top: auto;
+    bottom: calc(100% + 8px);
+}
+
 /* 浅色档下的悬浮按钮也得看得见（此时深色变量还没生效） */
-html:not([data-admin-dark="dark"]) .ad-switch-float {
+html:not([data-admin-dark="dark"]) .ad-float.ad-switch,
+html:not([data-admin-dark="dark"]) .ad-float .ad-switch {
     border-color: #d9d9d6;
     background: #fff;
     color: #666;
 }
 
-html:not([data-admin-dark="dark"]) .ad-switch-float:hover {
+html:not([data-admin-dark="dark"]) .ad-float.ad-switch:hover,
+html:not([data-admin-dark="dark"]) .ad-float .ad-switch:hover {
     background: #f6f6f3;
     color: #444;
 }

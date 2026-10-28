@@ -230,14 +230,13 @@
             return;
         }
 
-        /* 导航不存在（比如登录页），或配置成悬浮 */
+        /* 导航不存在（比如登录页），或配置成悬浮：竖着叠在右下角。
+           倒着排：模式按钮贴最下面，配色按钮在它上方 —— 这样配色菜单
+           向上展开时不会盖住模式按钮。 */
         nodes.forEach(function (node, index) {
-            if (node.classList.contains('ad-switch')) {
-                node.classList.add('ad-switch-float');
-                /* 两个悬浮控件竖着叠，别重叠 */
-                node.style.bottom = (22 + index * 46) + 'px';
-            }
-
+            node.classList.add('ad-float');
+            /* 「配色」是一整个 div（它的按钮在内部），不能只看 node 自己有没有 .ad-switch */
+            node.style.bottom = (22 + (nodes.length - 1 - index) * 46) + 'px';
             document.body.appendChild(node);
         });
     }
