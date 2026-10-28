@@ -31,10 +31,30 @@
     /* ---------------- cookie 读写 ---------------- */
 
     function cookieRead(name, allowed, fallback) {
-        var hit = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
-        var value = hit ? decodeURIComponent(hit[1]) : '';
+        /* 同名 cookie 可能有多条（宿主域 + 父域、或不同 path）。
+           浏览器不保证顺序，逐个比对、取最后一个**合法值**，
+           否则一旦残留一条旧值，按钮就会「点了没反应」。 */
+        var pattern = new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)', 'g');
+        var hit;
+        var value = '';
+        var found = false;
 
-        return allowed.indexOf(value) >= 0 ? value : fallback;
+        while ((hit = pattern.exec(document.cookie)) !== null) {
+            var current = '';
+
+            try {
+                current = decodeURIComponent(hit[1]);
+            } catch (e) {
+                current = hit[1];
+            }
+
+            if (allowed.indexOf(current) >= 0) {
+                value = current;
+                found = true;
+            }
+        }
+
+        return found ? value : fallback;
     }
 
     function cookieWrite(name, value) {

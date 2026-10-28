@@ -66,7 +66,7 @@ html[data-admin-dark="dark"] {
     --ad-line-soft: #2d323a;
     --ad-fg: #d7dbe2;
     --ad-fg-dim: #98a0ab;
-    --ad-fg-faint: #717986;
+    --ad-fg-faint: #89909b;
     --ad-accent: #5d9cbf;
     --ad-accent-hover: #79b1d1;
     --ad-accent-press: #4d87a8;
@@ -97,7 +97,7 @@ html[data-admin-dark="dark"][data-admin-scheme="midnight"] {
     --ad-line-soft: #232c37;
     --ad-fg: #d5dce6;
     --ad-fg-dim: #93a0b0;
-    --ad-fg-faint: #6b7788;
+    --ad-fg-faint: #7e8997;
     --ad-accent: #4f9bd8;
     --ad-accent-hover: #6fb0e4;
     --ad-accent-press: #3f83ba;
@@ -114,7 +114,7 @@ html[data-admin-dark="dark"][data-admin-scheme="plum"] {
     --ad-line-soft: #2b2334;
     --ad-fg: #ddd5e6;
     --ad-fg-dim: #a294b0;
-    --ad-fg-faint: #776b85;
+    --ad-fg-faint: #8e849a;
     --ad-accent: #a37bd8;
     --ad-accent-hover: #b795e4;
     --ad-accent-press: #8e66c2;
@@ -131,7 +131,7 @@ html[data-admin-dark="dark"][data-admin-scheme="forest"] {
     --ad-line-soft: #232d27;
     --ad-fg: #d3ded8;
     --ad-fg-dim: #93a79c;
-    --ad-fg-faint: #6b7d73;
+    --ad-fg-faint: #808f87;
     --ad-accent: #5fb98c;
     --ad-accent-hover: #7bcba1;
     --ad-accent-press: #4d9f76;
@@ -148,7 +148,7 @@ html[data-admin-dark="dark"][data-admin-scheme="ember"] {
     --ad-line-soft: #2f2820;
     --ad-fg: #e0d8ce;
     --ad-fg-dim: #ab9e8e;
-    --ad-fg-faint: #82756a;
+    --ad-fg-faint: #958a80;
     --ad-accent: #d4915c;
     --ad-accent-hover: #e2a577;
     --ad-accent-press: #bd7c4a;
@@ -548,6 +548,13 @@ html[data-admin-dark="dark"] .i-logo:hover,
 html[data-admin-dark="dark"] .i-logo-s:hover { opacity: .55; }
 
 /* ---------- 杂项 ---------- */
+
+/* 内核的「先备份再升级 / 第一次使用」提示框：后台唯一一处自带浅底的方块 */
+html[data-admin-dark="dark"] #typecho-welcome {
+    background-color: var(--ad-surface-3);
+    border-color: var(--ad-line);
+    color: var(--ad-fg);
+}
 
 html[data-admin-dark="dark"] .loading { filter: invert(.92); }
 html[data-admin-dark="dark"] .profile-avatar { background: var(--ad-surface); }

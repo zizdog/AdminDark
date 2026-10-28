@@ -9,7 +9,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
  *
  * @package AdminDark
  * @author  zizdog
- * @version 0.0.2
+ * @version 0.0.3
  * @link    https://zizdog.com
  */
 
